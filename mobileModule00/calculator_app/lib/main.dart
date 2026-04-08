@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 
 void main() {
-  debugPrint("Starting Calculator App");
   runApp(const MainApp());
 }
 
@@ -40,11 +39,13 @@ class Calculator extends StatefulWidget {
 class _CalculatorState extends State<Calculator> {
   final TextEditingController _inputController = TextEditingController();
   final TextEditingController _resultController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
     _inputController.dispose();
     _resultController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -98,27 +99,34 @@ class _CalculatorState extends State<Calculator> {
         _inputController.text += label;
       }
     });
+    //テキストの最後尾（右端）までスクロールさせる
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              double dyPadding = constraints.maxHeight < 200 ? 12.0 : 16.0;
-              return Container(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isBigWide =
+            constraints.maxHeight < constraints.maxWidth &&
+            700 < constraints.maxHeight;
+        final resultFontSize = isBigWide ? 48.0 : 24.0;
+        final inputFontSize = isBigWide ? 64.0 : 32.0;
+        final panelFontSize = isBigWide ? 48.0 : 24.0;
+
+        return Column(
+          children: [
+            Expanded(
+              child: Container(
                 alignment: Alignment.topRight,
-                //背景色を赤に
                 decoration: BoxDecoration(color: Colors.red),
-                padding: EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                  top: dyPadding,
-                  bottom: dyPadding,
-                ),
+                padding: EdgeInsets.all(16.0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     TextField(
@@ -130,41 +138,56 @@ class _CalculatorState extends State<Calculator> {
                         filled: true,
                         fillColor: Colors.blue,
                         isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      style: const TextStyle(fontSize: 24, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: resultFontSize,
+                        color: Colors.white,
+                      ),
                     ),
                     TextField(
                       controller: _inputController,
+                      scrollController: _scrollController,
                       readOnly: true,
                       textAlign: TextAlign.right,
+                      autofocus: true,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         filled: true,
                         fillColor: Colors.red,
                         isDense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      style: const TextStyle(
-                        fontSize: 32,
+                      style: TextStyle(
+                        fontSize: inputFontSize,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-        InputPanels(onButtonPressed: _onButtonPressed),
-      ],
+              ),
+            ),
+            InputPanels(
+              onButtonPressed: _onButtonPressed,
+              panelFontSize: panelFontSize,
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class InputPanels extends StatelessWidget {
-  const InputPanels({required this.onButtonPressed, super.key});
+  const InputPanels({
+    required this.onButtonPressed,
+    required this.panelFontSize,
+    super.key,
+  });
 
   final void Function(String) onButtonPressed;
+  final double panelFontSize;
 
   Color _getButtonColor(String label) {
     if (label == 'C' || label == 'AC') {
@@ -187,22 +210,25 @@ class InputPanels extends StatelessWidget {
     ];
 
     return Table(
+      border: TableBorder.all(
+        style: BorderStyle.solid,
+        color: Colors.grey[300]!,
+      ),
       children: [
-        for (var row in rows)
+        for (final row in rows)
           TableRow(
-            decoration: BoxDecoration(),
             children: [
-              for (var btn in row)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextButton(
-                    onPressed: () => onButtonPressed(btn),
-                    child: Text(
-                      btn,
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: _getButtonColor(btn),
-                      ),
+              for (final btn in row)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.all(16.0),
+                  ),
+                  onPressed: () => onButtonPressed(btn),
+                  child: Text(
+                    btn,
+                    style: TextStyle(
+                      fontSize: panelFontSize,
+                      color: _getButtonColor(btn),
                     ),
                   ),
                 ),
