@@ -67,21 +67,20 @@ class _CalculatorState extends State<Calculator> {
       final num result = _calcExprString(_inputController.text);
       if (!result.isFinite) throw Exception("Result is Infinite or NaN");
       setState(() {
-        _inputController.text = (result % 1 == 0)
+        _resultController.text = (result % 1 == 0)
             ? result.toInt().toString()
             : result.toString();
-        _resultController.text = _inputController.text;
       });
     } catch (e) {
       debugPrint("Error: $e");
       setState(() {
-        _inputController.text = '';
         _resultController.text = 'Error';
       });
     }
   }
 
   void _onButtonPressed(String label) {
+    debugPrint("Button pressed: $label");
     setState(() {
       if (label == 'C') {
         if (_inputController.text.isNotEmpty) {
