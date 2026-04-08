@@ -99,7 +99,7 @@ class _CalculatorState extends State<Calculator> {
         _inputController.text += label;
       }
     });
-    //テキストの最後尾（右端）までスクロールさせる
+    //テキストの最後尾（右端）までスクロール
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);

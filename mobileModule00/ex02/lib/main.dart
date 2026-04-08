@@ -51,7 +51,6 @@ class _CalculatorState extends State<Calculator> {
               double dyPadding = constraints.maxHeight < 200 ? 12.0 : 16.0;
               return Container(
                 alignment: Alignment.topRight,
-                //背景色を赤に
                 decoration: BoxDecoration(color: Colors.red),
                 padding: EdgeInsets.only(
                   left: 16.0,
