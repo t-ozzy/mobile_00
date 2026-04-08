@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: const Color(0xFFFFFFFF),
+        backgroundColor: Colors.white,
         body: Center(
           child: ToggleText(textA: "A simple text", textB: "Hello World"),
         ),
